@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafely Affiliate Payment Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .portal-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .login-form {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="email"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .payment-options {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .payment-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .payment-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .payment-desc {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .balance-info {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .threshold-warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="logo">☕ CAFELY</div>
+        <div class="subtitle">Affiliate Payment Portal</div>
+        
+        <!-- Login Form -->
+        <div class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your affiliate email">
+            </div>
+            <div class="form-group">
+                <label for="password">Affiliate ID</label>
+                <input type="password" id="password" placeholder="Enter your affiliate ID">
+            </div>
+            <button class="login-btn" onclick="login()">Access Payment Portal</button>
+        </div>
+        
+        <!-- Payment Options (Hidden initially) -->
+        <div class="payment-options" id="paymentOptions">
+            <div class="balance-info">
+                <h3>Current Balance: $<span id="currentBalance">0.00</span></h3>
+                <p>Available for withdrawal</p>
+            </div>
+            
+            <div class="threshold-warning" id="thresholdWarning" style="display: none;">
+                ⚠️ Minimum payout threshold: $50.00<br>
+                You need $<span id="neededAmount">0.00</span> more to request payment.
+            </div>
+            
+            <div class="payment-card" onclick="openPaymentForm('monthly')">
+                <div class="payment-title">📅 Monthly Payment Request</div>
+                <div class="payment-desc">Request payment for current month earnings</div>
+            </div>
+            
+            <div class="payment-card" onclick="openPaymentForm('quarterly')">
+                <div class="payment-title">📊 Quarterly Payment Request</div>
+                <div class="payment-desc">Request payment for quarterly earnings</div>
+            </div>
+            
+            <div class="payment-card" onclick="openPaymentForm('custom')">
+                <div class="payment-title">🎯 Custom Payment Request</div>
+                <div class="payment-desc">Request payment for specific date range</div>
+            </div>
+            
+            <div class="payment-card" onclick="openPaymentForm('update')">
+                <div class="payment-title">⚙️ Update Payment Info</div>
+                <div class="payment-desc">Update bank details or payment method</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated user data - In real implementation, this would come from your backend
+        const userData = {
+            'creator1@email.com': {
+                id: 'AFF001',
+                balance: 125.50,
+                name: 'John Creator'
+            },
+            'creator2@email.com': {
+                id: 'AFF002', 
+                balance: 35.75,
+                name: 'Jane Blogger'
+            }
+        };
+        
+        // Google Forms URLs - Replace with your actual Google Form URLs
+        const formUrls = {
+            monthly: 'https://docs.google.com/forms/d/e/YOUR_MONTHLY_FORM_ID/viewform',
+            quarterly: 'https://docs.google.com/forms/d/e/YOUR_QUARTERLY_FORM_ID/viewform',
+            custom: 'https://docs.google.com/forms/d/e/YOUR_CUSTOM_FORM_ID/viewform',
+            update: 'https://docs.google.com/forms/d/e/YOUR_UPDATE_FORM_ID/viewform'
+        };
+        
+        function login() {
+            const email = document.getElementById('email').value;
+            const affiliateId = document.getElementById('password').value;
+            
+            if (!email || !affiliateId) {
+                alert('Please enter both email and affiliate ID');
+                return;
+            }
+            
+            // Check if user exists (in real app, this would be a server request)
+            const user = userData[email];
+            if (user && user.id === affiliateId) {
+                // Show payment options
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('paymentOptions').style.display = 'block';
+                
+                // Update balance display
+                document.getElementById('currentBalance').textContent = user.balance.toFixed(2);
+                
+                // Check minimum threshold
+                const minThreshold = 50.00;
+                if (user.balance < minThreshold) {
+                    const warning = document.getElementById('thresholdWarning');
+                    warning.style.display = 'block';
+                    document.getElementById('neededAmount').textContent = (minThreshold - user.balance).toFixed(2);
+                }
+            } else {
+                alert('Invalid email or affiliate ID. Please try again.');
+            }
+        }
+        
+        function openPaymentForm(formType) {
+            const currentBalance = parseFloat(document.getElementById('currentBalance').textContent);
+            const minThreshold = 50.00;
+            
+            // Check threshold for payment requests (but not for updates)
+            if (formType !== 'update' && currentBalance < minThreshold) {
+                alert(`You need at least $${minThreshold.toFixed(2)} to request payment. Current balance: $${currentBalance.toFixed(2)}`);
+                return;
+            }
+            
+            // Pre-fill Google Form with user data
+            const email = document.getElementById('email').value;
+            const user = userData[email];
+            
+            let formUrl = formUrls[formType];
+            
+            // Add pre-filled parameters to Google Form URL
+            // Replace 'entry.XXXXXXX' with actual entry IDs from your Google Form
+            formUrl += `?entry.123456=${encodeURIComponent(user.name)}`;
+            formUrl += `&entry.789012=${encodeURIComponent(email)}`;
+            formUrl += `&entry.345678=${encodeURIComponent(user.id)}`;
+            formUrl += `&entry.901234=${currentBalance.toFixed(2)}`;
+            
+            // Open Google Form in new tab
+            window.open(formUrl, '_blank');
+        }
+        
+        // Allow Enter key to login
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && document.getElementById('loginForm').style.display !== 'none') {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>
