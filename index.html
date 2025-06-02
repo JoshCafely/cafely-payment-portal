@@ -158,147 +158,107 @@
         
         <!-- Payment Options (Hidden initially) -->
         <div class="payment-options" id="paymentOptions">
-            <div class="balance-info">
-                <h3>Current Balance: $<span id="currentBalance">0.00</span></h3>
-                <p>Available for withdrawal</p>
+            <h3>Welcome to Cafely Payment Portal! 🎉</h3>
+            <p>Click the button below to submit your payment request:</p>
+            
+            <div class="payment-card" onclick="openPaymentForm()">
+                <div class="payment-title">💰 Submit Payment Request</div>
+                <div class="payment-desc">Fill out the payment form to request your commission payout</div>
             </div>
             
-            <div class="threshold-warning" id="thresholdWarning" style="display: none;">
-                ⚠️ Minimum payout threshold: $50.00<br>
-                You need $<span id="neededAmount">0.00</span> more to request payment.
-            </div>
-            
-            <div class="payment-card" onclick="openPaymentForm('monthly')">
-                <div class="payment-title">📅 Monthly Payment Request</div>
-                <div class="payment-desc">Request payment for current month earnings</div>
-            </div>
-            
-            <div class="payment-card" onclick="openPaymentForm('quarterly')">
-                <div class="payment-title">📊 Quarterly Payment Request</div>
-                <div class="payment-desc">Request payment for quarterly earnings</div>
-            </div>
-            
-            <div class="payment-card" onclick="openPaymentForm('custom')">
-                <div class="payment-title">🎯 Custom Payment Request</div>
-                <div class="payment-desc">Request payment for specific date range</div>
-            </div>
-            
-            <div class="payment-card" onclick="openPaymentForm('update')">
-                <div class="payment-title">⚙️ Update Payment Info</div>
-                <div class="payment-desc">Update bank details or payment method</div>
+            <div class="payment-card" onclick="logout()">
+                <div class="payment-title">🚪 Logout</div>
+                <div class="payment-desc">Return to login screen</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Your actual affiliate users - Add all your content creators here
+        // Your actual affiliate users
         const userData = {
-            // Example entries - Replace with your actual affiliates
+            'alex@nextspike.com': {
+                id: 'CAF001',
+                name: 'Alex Nguyen'
+            },
             'josh@nextspike.com': {
                 id: 'CAF002',
-                balance: 999,999,999,
                 name: 'Joshua Yanong'
-            },
-            'alex@nextspike.com': {
-                id: 'CAF001', 
-                balance: 999,999,999,
-                name: 'Alex Nguyen'
             },
             'zoey@nextspike.com': {
                 id: 'CAF003',
-                balance: 999,999,999,
                 name: 'Zoey'
             },
             'VA-0049@mail4.team': {
                 id: 'CAF004',
-                balance: 999,999,999,
                 name: 'Reexa'
-            },
-        'josh@nextspike.com': {
-                id: 'CAF002',
-                balance: 999,999,999,
-                name: 'Joshua Yanong'
-            },
-            'alex@nextspike.com': {
-                id: 'CAF001', 
-                balance: 999,999,999,
-                name: 'Alex Nguyen'
-            },
-            'zoey@nextspike.com': {
-                id: 'CAF003',
-                balance: 999,999,999,
-                name: 'Zoey'
-            },
-            'VA-0049@mail4.team': {
-                id: 'CAF004',
-                balance: 999,999,999,
-                name: 'Reexa'
+            }
         };
         
-        // Google Forms URLs - Replace with your actual Google Form URLs
-        const formUrls = {
-            monthly: 'https://docs.google.com/forms/d/e/YOUR_MONTHLY_FORM_ID/viewform',
-            quarterly: 'https://docs.google.com/forms/d/e/YOUR_QUARTERLY_FORM_ID/viewform',
-            custom: 'https://docs.google.com/forms/d/e/YOUR_CUSTOM_FORM_ID/viewform',
-            update: 'https://docs.google.com/forms/d/e/YOUR_UPDATE_FORM_ID/viewform'
-        };
+        // Google Form URL - Your actual payment form
+        const paymentFormUrl = 'https://forms.gle/832rQFUbPNJ7eHt88';
         
         function login() {
             const email = document.getElementById('email').value;
             const affiliateId = document.getElementById('password').value;
+            
+            // Debug: Show what was entered
+            console.log('Entered email:', email);
+            console.log('Entered affiliate ID:', affiliateId);
+            console.log('Available users:', Object.keys(userData));
             
             if (!email || !affiliateId) {
                 alert('Please enter both email and affiliate ID');
                 return;
             }
             
-            // Check if user exists (in real app, this would be a server request)
+            // Check if user exists
             const user = userData[email];
+            console.log('Found user:', user);
+            
             if (user && user.id === affiliateId) {
+                alert('Login successful! Welcome ' + user.name);
+                
                 // Show payment options
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('paymentOptions').style.display = 'block';
                 
-                // Update balance display
-                document.getElementById('currentBalance').textContent = user.balance.toFixed(2);
-                
-                // Check minimum threshold
-                const minThreshold = 50.00;
-                if (user.balance < minThreshold) {
-                    const warning = document.getElementById('thresholdWarning');
-                    warning.style.display = 'block';
-                    document.getElementById('neededAmount').textContent = (minThreshold - user.balance).toFixed(2);
-                }
             } else {
-                alert('Invalid email or affiliate ID. Please try again.');
+                // More detailed error message
+                if (!user) {
+                    alert('Email not found: ' + email + '\n\nAvailable emails: ' + Object.keys(userData).join(', '));
+                } else {
+                    alert('Incorrect Affiliate ID. Expected: ' + user.id + ', Got: ' + affiliateId);
+                }
             }
         }
         
-        function openPaymentForm(formType) {
-            const currentBalance = parseFloat(document.getElementById('currentBalance').textContent);
-            const minThreshold = 50.00;
-            
-            // Check threshold for payment requests (but not for updates)
-            if (formType !== 'update' && currentBalance < minThreshold) {
-                alert(`You need at least $${minThreshold.toFixed(2)} to request payment. Current balance: $${currentBalance.toFixed(2)}`);
-                return;
-            }
-            
-            // Pre-fill Google Form with user data
+        function openPaymentForm() {
+            // Get current user data
             const email = document.getElementById('email').value;
             const user = userData[email];
             
-            let formUrl = formUrls[formType];
+            // Pre-fill Google Form with user data
+            let formUrl = paymentFormUrl;
             
             // Add pre-filled parameters to Google Form URL
-            // Replace 'entry.XXXXXXX' with actual entry IDs from your Google Form
-            formUrl += `?entry.123456=${encodeURIComponent(user.name)}`;
-            formUrl += `&entry.789012=${encodeURIComponent(email)}`;
-            formUrl += `&entry.345678=${encodeURIComponent(user.id)}`;
-            formUrl += `&entry.901234=${currentBalance.toFixed(2)}`;
+            // You can customize these parameter names based on your actual Google Form
+            formUrl += `?usp=pp_url`; // Enable pre-filled mode
+            formUrl += `&entry.123456=${encodeURIComponent(user.name)}`; // Replace with actual entry ID for name
+            formUrl += `&entry.789012=${encodeURIComponent(email)}`; // Replace with actual entry ID for email
+            formUrl += `&entry.345678=${encodeURIComponent(user.id)}`; // Replace with actual entry ID for affiliate ID
             
             // Open Google Form in new tab
             window.open(formUrl, '_blank');
+        }
+        
+        function logout() {
+            // Reset the portal to login screen
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('paymentOptions').style.display = 'none';
+            
+            // Clear the form fields
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
         }
         
         // Allow Enter key to login
